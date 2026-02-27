@@ -1,0 +1,32 @@
+name: Agente de Clima Niteroi
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Roda a cada hora (no minuto 0)
+  workflow_dispatch: # Permite que você rode manualmente para testar
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar dependências
+        run: pip install requests pandas
+
+      - name: Executar script
+        run: python agente.py
+
+      - name: Salvar alterações no GitHub
+        run: |
+          git config --global user.name 'Agente Clima'
+          git config --global user.email 'actions@github.com'
+          git add historico_temperatura.csv
+          git commit -m "Atualização automática: $(date)" || echo "Sem mudanças para salvar"
+          git push
